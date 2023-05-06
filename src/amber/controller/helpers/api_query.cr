@@ -32,8 +32,15 @@ module Amber::Controller::Helpers
       {% end %}
     end
 
-    def param_args : Array(ParamFilter)
+    def param_args(filter_params : Array(Open::Api::Parameter)) : Array(ParamFilter)
       filters = Array(ParamFilter).new
+      filter_params.each do |param|
+        val = param_filter(param)
+        unless val.nil?
+          filters << val
+        end
+      end
+
       _filters = params["filter[]"]?
       return filters if _filters.nil?
 
@@ -54,6 +61,45 @@ module Amber::Controller::Helpers
       end
 
       filters
+    end
+
+    # Convert the `Open::Api::Parameter` to a filter struct
+    private def param_filter(param : Open::Api::Parameter) : ParamFilter?
+      param_name = param.name
+      op = :eq
+      param_value = param_value(param)
+      return nil if param_value.nil?
+
+      if param_name =~ /^(.*)_(:\w+)$/
+        param_name = $1
+        op = string_to_operator($2)
+      end
+
+      case param_value
+      when String
+        if op == :in || op == :nin
+          param_value = param_value.split(',')
+        elsif op == :like || op == :nlike
+          param_value = "%#{param_value}%"
+        end
+        {name: param_name, op: op, value: param_value}
+      when Bool, Float64, Int64
+        {name: param_name, op: op, value: param_value}
+      else
+        nil
+      end
+    end
+
+    # Fetch the value from the http request
+    def param_value(param : Open::Api::Parameter)
+      case param.parameter_in
+      when "query", "path", "body"
+        params[param.name]?.nil? ? nil : params[param.name]
+      when "header"
+        request.headers[param.name]?.nil? ? nil : request.headers[param.name]
+      else
+        nil
+      end
     end
   end
 end

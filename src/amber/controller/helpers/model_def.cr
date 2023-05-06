@@ -85,9 +85,8 @@ module Amber::Controller::Helpers
           {% is_enum = var_type < Enum %}
           {% if is_enum %}{% enum_check[var.id] = is_enum %}{% end %}
 
-          {% is_json = var.annotation(Granite::Column) && var.annotation(Granite::Column)[:converter].id == /Granite::Converters::Json/ %}
+          {% is_json = var.annotation(Granite::Column) && var.annotation(Granite::Column)[:converter].id =~ /Granite::Converters::Json/ %}
           {% if is_json %}{% json_check[var.id] = is_json %}{% end %}
-
           {% if is_json %}
             %model_def.properties[{{var.id.stringify}}] = Open::Api::Schema.from_type({{var_type.id}})
 
@@ -191,7 +190,7 @@ module Amber::Controller::Helpers
           when "{{column.id}}"
             Log.trace { "patching attr {{column.id}}" }
 
-            {% if column.annotation(Granite::Column) && column.annotation(Granite::Column)[:converter].id == /Granite::Converters::Json/ %}
+            {% if column.annotation(Granite::Column) && column.annotation(Granite::Column)[:converter].id =~ /Granite::Converters::Json/ %}
               item.{{column.id}} = {{column.type.union_types.find { |t| t != Nil }}}.from_json(param[:value].to_json)
             {% elsif json_check[column.id] %}
             next

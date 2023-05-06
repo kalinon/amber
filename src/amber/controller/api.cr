@@ -4,6 +4,8 @@ require "./helpers/model_def"
 
 module Amber::Controller
   class Api(T) < Base
+    Log = ::Log.for(self)
+
     RESPONSE_TYPE = "application/json"
     include Amber::Controller::Helpers::ApiQuery
 
@@ -33,9 +35,9 @@ module Amber::Controller
     macro query_list(model)
       limit, offset = limit_offset_args
       order_by = order_by_args
-      filters = param_args
+      filters = param_args(model_def.coll_filter_params)
 
-      Log.debug &.emit "get {{model.id}}", filters: filters.to_json, limit: limit, offset: offset, order_by: order_by.to_json
+      Log.debug &.emit( "query_list {{model.id}}", filters: filters.to_json, limit: limit, offset: offset, order_by: order_by.to_json)
 
       query = {{model.id}}.where
       # If sort is not specified, sort by provided column
