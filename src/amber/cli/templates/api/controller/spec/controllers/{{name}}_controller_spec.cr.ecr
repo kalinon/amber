@@ -45,7 +45,7 @@ describe <%= class_name %>ControllerTest do
   it "renders <%= @name %> index json" do
     <%= class_name %>.clear
     model = create_<%= @name.downcase %>
-    response = subject.get "/<%= name_plural %>"
+    response = subject.get "/api/v1/<%= name_plural %>"
 
     response.status_code.should eq(200)
     <%- unless @fields_hash.empty? -%>
@@ -56,7 +56,7 @@ describe <%= class_name %>ControllerTest do
   it "renders <%= @name %> show json" do
     <%= class_name %>.clear
     model = create_<%= @name.downcase %>
-    location = "/<%= name_plural %>/#{model.id}"
+    location = "/api/v1/<%= name_plural %>/#{model.id}"
 
     response = subject.get location
 
@@ -68,7 +68,7 @@ describe <%= class_name %>ControllerTest do
 
   it "creates a <%= @name %>" do
     <%= class_name %>.clear
-    response = subject.post "/<%= name_plural %>", body: <%= params_name %>
+    response = subject.post "/api/v1/<%= name_plural %>", body: <%= params_name %>
 
     response.status_code.should eq(201)
     <%- unless @fields_hash.empty? -%>
@@ -79,7 +79,7 @@ describe <%= class_name %>ControllerTest do
   it "updates a <%= @name %>" do
     <%= class_name %>.clear
     model = <%= create_model_method %>
-    response = subject.patch "/<%= name_plural %>/#{model.id}", body: <%= params_name %>
+    response = subject.patch "/api/v1/<%= name_plural %>/#{model.id}", body: <%= params_name %>
 
     response.status_code.should eq(200)
     <%- unless @fields_hash.empty? -%>
@@ -90,7 +90,7 @@ describe <%= class_name %>ControllerTest do
   it "deletes a <%= @name %>" do
     <%= class_name %>.clear
     model = <%= create_model_method %>
-    response = subject.delete "/<%= name_plural %>/#{model.id}"
+    response = subject.delete "/api/v1/<%= name_plural %>/#{model.id}"
 
     response.status_code.should eq(204)
   end

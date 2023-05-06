@@ -57,6 +57,20 @@ module Amber::DSL
       {% end %}
     end
 
+    macro json_api(resource, controller, only = nil, except = nil, constraints = {} of String => Regex)
+      {% actions = [:index, :create, :show, :update, :destroy] %}
+
+      {% if only %}
+        {% actions = only %}
+      {% elsif except %}
+        {% actions = actions.reject { |i| except.includes? i } %}
+      {% end %}
+
+      {% for action in actions %}
+        define_action({{resource}}, {{controller}}, {{action}}, {{constraints}})
+      {% end %}
+    end
+
     private macro define_action(path, controller, action, constraints = {} of String => Regex)
       {% if action == :index %}
         get "/{{path.id}}", {{controller}}, :index, {{constraints}}

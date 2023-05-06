@@ -53,7 +53,7 @@ module Amber::CLI
           case line.strip
           when .starts_with?("routes")
             set_pipe(line)
-          when .starts_with?("resources")
+          when .starts_with?("resources"), .starts_with?("json_api")
             set_resources(line)
           else
             set_route(line)
@@ -73,11 +73,15 @@ module Amber::CLI
 
       private def set_resources(resource_string)
         if route_match = resource_string.to_s.match(RESOURCE_ROUTE_REGEX)
+          json_api = route_match[1]? == "json_api"
           filter = route_match[4]?
           filter_actions = route_match[5]?.to_s.gsub(/\:|\s/, "").split(",")
 
           ACTION_MAPPING.each do |verb, v|
             v.each do |action|
+              # skip new and edit actions for json_api
+              next if json_api && action == "new" || action == "edit"
+
               case filter
               when "only"
                 next unless filter_actions.includes?(action)

@@ -1,4 +1,4 @@
-class <%= class_name %>Controller < ApplicationController
+class <%= class_name %>Controller < Amber::Controller::Api(<%= class_name %>)
   def index
     <%= name_plural %> = <%= class_name %>.all
     respond_with 200 do
@@ -20,7 +20,7 @@ class <%= class_name %>Controller < ApplicationController
   end
 
   def create
-    <%= @name %> = <%= class_name %>.new(<%= @name %>_params.validate!)
+    <%= @name %> = <%= class_name %>.from_json(params["_json"])
 
     if <%= @name %>.valid? && <%= @name %>.save
       respond_with 201 do

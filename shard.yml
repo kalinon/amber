@@ -78,6 +78,10 @@ dependencies:
     github: crystal-lang/yaml_mapping.cr
     version: ~> 0.1.0
 
+  open-api:
+    github: spoved/open-api.cr
+    version: ">= 0.2.9"
+
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
