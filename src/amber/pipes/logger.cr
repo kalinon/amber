@@ -63,8 +63,8 @@ module Amber
         "#{(millis * 1000).round(2)}µs"
       end
 
-      private def log(msg, prog, color = :white)
-        Log.for(prog.colorize(color).to_s).debug { msg }
+      private def log(msg, prog, color = :white, **args)
+        Log.for(prog.colorize(color).to_s).debug &.emit msg, **args
       end
 
       private def log_config

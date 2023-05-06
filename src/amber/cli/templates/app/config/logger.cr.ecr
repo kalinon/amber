@@ -26,6 +26,10 @@ backend.formatter = Log::Formatter.new do |entry, io|
   io << " (#{entry.severity})" if entry.severity > Log::Severity::Debug
   io << " "
   io << entry.message
+  if entry.data.size > 0
+    io << " -- "
+    io << entry.data
+  end
 end
 
 Log.builder.clear
