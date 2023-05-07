@@ -4,6 +4,8 @@ module Amber::Controller::Helpers
 
     alias RawFilter = NamedTuple(name: String, op: String, value: Bool | Float64 | Int32 | Int64 | String | Array(String))
     alias ParamFilter = NamedTuple(name: String, op: Symbol, value: Bool | Float64 | Int32 | Int64 | String | Array(String))
+    alias ParamValue = Array(JSON::Any) | Bool | Float64 | Hash(String, JSON::Any) | Int64 | String | Nil
+    alias ParamValues = NamedTuple(name: String, value: ParamValue)
 
     def limit_offset_args
       limit = params[:limit]?.nil? ? DEFAULT_LIMIT : params[:limit].to_i
@@ -19,6 +21,7 @@ module Amber::Controller::Helpers
       end.reject! { |k, _| k.empty? }
     end
 
+    # Convert the string to a symbol
     private def string_to_operator(str)
       {% begin %}
       case str
@@ -63,6 +66,16 @@ module Amber::Controller::Helpers
       filters
     end
 
+    # Pull raw values from the env
+    def param_body_values(params : Array(Open::Api::Parameter)) : Array(ParamValues)
+      params.map do |param|
+        {
+          name:  param.name,
+          value: param_value(param),
+        }.as(ParamValues)
+      end.reject! { |v| v[:value].nil? }
+    end
+
     # Convert the `Open::Api::Parameter` to a filter struct
     private def param_filter(param : Open::Api::Parameter) : ParamFilter?
       param_name = param.name
@@ -90,8 +103,8 @@ module Amber::Controller::Helpers
       end
     end
 
-    # Fetch the value from the http request
-    def param_value(param : Open::Api::Parameter)
+    # Fetch the value from the request
+    def param_value(param : Open::Api::Parameter) : ParamValue
       case param.parameter_in
       when "query", "path", "body"
         params[param.name]?.nil? ? nil : params[param.name]

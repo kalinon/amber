@@ -1,4 +1,5 @@
 require "open-api"
+require "./api_query"
 
 module Amber::Controller::Helpers
   # :nodoc:
@@ -17,13 +18,11 @@ module Amber::Controller::Helpers
                           (Int32 | Nil).class | (Int64 | Nil).class | (Float32 | Nil).class | (Float64 | Nil).class | (UUID | Nil).class |
                           (Bool | Nil).class | (String | Nil).class | (JSON::Any | Nil).class | (Time | Nil).class
 
-    alias ParamValues = NamedTuple(name: String, value: Array(JSON::Any) | Bool | Float64 | Hash(String, JSON::Any) | Int64 | String | Nil)
-
     getter properties : Hash(String, Open::Api::SchemaRef) = Hash(String, Open::Api::SchemaRef).new
     getter collumn_params : Array(CollParamDef) = [] of CollParamDef
     getter body_params : Array(Open::Api::Parameter) = Array(Open::Api::Parameter).new
     property apply_filters : Proc(Array(Amber::Controller::Helpers::ApiQuery::ParamFilter), Granite::Query::Builder(T), Nil) = ->(filters : Array(Amber::Controller::Helpers::ApiQuery::ParamFilter), query : Granite::Query::Builder(T)) {}
-    property patch_item : Proc(T, Array(ParamValues), Nil) = ->(item : T, filters : Array(ParamValues)) {}
+    property patch_item : Proc(T, Array(Amber::Controller::Helpers::ApiQuery::ParamValues), Nil) = ->(item : T, filters : Array(Amber::Controller::Helpers::ApiQuery::ParamValues)) {}
 
     def initialize
       {% begin %}
@@ -180,7 +179,7 @@ module Amber::Controller::Helpers
         end
       }
 
-      %model_def.patch_item = ->(item : {{model.id}}, values : Array(ParamValues)){
+      %model_def.patch_item = ->(item : {{model.id}}, values : Array(Amber::Controller::Helpers::ApiQuery::ParamValues)){
         values.each do |param|
           case param[:name]
           when "{{primary_key.id}}"

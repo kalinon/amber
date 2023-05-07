@@ -21,10 +21,10 @@ module Amber::Controller
 
     macro inherited
       class_getter model_def : Amber::Controller::Helpers::ModelDef(T) = Amber::Controller::Helpers::ModelDef(T).new
-    end
 
-    def model_def : Amber::Controller::Helpers::ModelDef(T)
-      self.class.model_def
+      def model_def : Amber::Controller::Helpers::ModelDef(T)
+        self.class.model_def
+      end
     end
 
     def initialize(@context : HTTP::Server::Context)

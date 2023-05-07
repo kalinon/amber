@@ -1,6 +1,6 @@
 class <%= class_name %>Controller < Amber::Controller::Api(<%= class_name %>)
   def index
-    <%= name_plural %> = <%= class_name %>.all
+    <%= name_plural %> = query_list <%= class_name %>
     respond_with 200 do
       json <%= name_plural %>.to_json
     end
@@ -36,7 +36,9 @@ class <%= class_name %>Controller < Amber::Controller::Api(<%= class_name %>)
 
   def update
     if <%= @name %> = <%= class_name %>.find(params["id"])
-      <%= @name %>.set_attributes(<%= @name %>_params.validate!)
+      values = param_body_values(model_def.body_params)
+      self.model_def.patch_item.call(<%= @name %>, values)
+
       if <%= @name %>.valid? && <%= @name %>.save
         respond_with 200 do
           json <%= @name %>.to_json
